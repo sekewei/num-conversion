@@ -1,0 +1,216 @@
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=cn-big5">
+<html>
+<title>Number System Conversion Practice
+</title>
+<body>
+<script language=javascript>
+
+//Begin of main program
+
+  bases = "28dx";  // bases for practice
+  N = 256;	// number range in base 10 for practice use
+
+  document.write("<center><h2>Number System Conversion Practice</h2></center>\n");
+  document.write("<center><h2>數字系統轉換練習</h2></center>");
+  
+  // select two bases for conversion practice
+  from = bases.charAt(newq(4)-1);
+  if(from=="x") from=16; else if(from=="d") from=10;
+  do
+  {
+    to = bases.charAt(newq(4)-1);
+    if(to=="x") to=16; else if(to=="d") to=10;
+    //alert("from="+from+" to="+to);
+  } while (from==to);
+   
+  cvt_q(from,to,N);
+  cvt_q(to,from,N);
+
+  reload = "<input type=button value=reload_重新出題 onclick=location.reload();>";
+  document.write("<hr>\n<form>Press "+reload+" to restart!</form>");
+
+// End of main program
+
+
+/* -------------------------------------------------
+* generate a conversion problem 
+*	from base frombase to base tobase in the range range
+*/
+function cvt_q(frombase,tobase,range)
+{
+  var num_ten,num_nb,num_b2,bfrom,bto,fname,from,to;
+  
+  num_ten = newnum(range).toString();
+  num_nb2 = ten2nb(num_ten,frombase);
+  num_nb = trunc(num_nb2,2);
+  bfrom = frombase.toString();
+  bto = tobase.toString();
+  from="("+num_nb+")"+bfrom.sub();
+  to="(<input type=text name=ans size=12>)"+bto.sub();
+  fname = "to_"+bfrom+"_"+bto;
+
+  document.write("<form name="+fname+">\n");
+  document.write(frombase+"進制轉"+tobase+"進制：&nbsp&nbsp");
+  document.write(from + " = " + to + "&nbsp&nbsp");
+  document.write("<input type=button name=btn1 value=check_核對 ");
+  document.write('onclick=check("'+num_nb+'",'+bfrom+","+fname+".ans.value,"+bto+")>");
+  document.write("&nbsp&nbsp");
+  document.write("<input type=button name=btn2 value=quit_看答案 ");
+  document.write('onclick=quit("'+num_nb+'",'+bfrom+","+bto+")>");
+  document.write("</form>\n");
+}
+
+// about how to respond to buttons
+function check(num1,base1,num2,base2)
+{
+  //alert("num1="+num1+" base1="+base1+" num2="+num2+" base2="+base2);
+  if(nb2ten(num1,base1)==nb2ten(num2,base2))
+    alert("Correct! 答對了!");
+  else
+    alert("Wrong! 不對,請再試一次!");
+}
+
+function quit(num1,base1,base2)
+{
+  var num2 = ten2nb(nb2ten(num1,base1),base2)
+  alert("Answer = "+num2);
+}
+
+
+// about how to generate a new number
+// truncate to at most x decimals below decimal point
+function trunc(num,x)
+{
+  var len,pos,numx,posx,c;
+  
+  len = num.length;
+  pos = num.indexOf(".",0);	// pos of decimal point
+  posx = pos+x+1;
+  
+  numx = num;
+  if(pos>=0)
+  {
+    if(posx <= len-1)
+    {
+      numx = num.substring(0,posx);  // extract from 0 to one char before posx
+      //alert("num="+num+" pos="+pos+" posx="+posx+" numx="+numx);
+    }
+  
+    // delete trailing 0 below decimal point
+    len = numx.length;
+    c = numx.charAt(len-1);
+    while(c=='0' || c=='.')
+    {
+      numx = numx.substring(0,len-1);
+      if(c=='.') break;
+      len = numx.length;
+      c = numx.charAt(len-1);
+      //alert("numx="+numx);
+    } 
+  }
+  
+  return numx;
+}
+
+function newnum(order)
+{
+  var num;
+  
+  num = newq(order);
+  if(Math.random()>0.75)
+  {
+    num += newq(99)/100.;
+  }
+  
+  return num;
+}
+
+function newq(order)
+{
+  var	num = Math.floor(Math.random() * order + 1);
+
+  return num;
+  //alert("num="+num);
+}
+
+// convert string n in base b into a number in base 10
+function nb2ten(n,base)
+{
+  var len,pos,power,ten,i,c;
+
+  if(base==10) return n.toString();
+  
+  len = n.length;
+  pos = n.indexOf(".",0);	// pos of decimal point
+  if(pos<0)
+    power = Math.pow(base,len - 1);
+  else
+    power = Math.pow(base,pos - 1);
+
+  ten = 0;
+  for(i=0; i<len; i++)
+  {
+    c = n.charAt(i);
+    if(c==".")		// skip decimal point
+      continue;
+
+    ten = ten + digit(c,base) * power;
+    power = power / base;
+  }
+
+  ten = ten.toString();
+  //alert("ten="+ten);
+
+  return ten;
+}
+
+// convert a number n in base 10 into a string in base b
+function ten2nb(n,base)
+{
+  var darray = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  var intn,mann,ten,r,i;
+  
+  if(base==10) return n;
+  
+  nn = parseFloat(n);
+  intn = Math.floor(nn);
+  mann = n - intn;
+  
+  ten = "";
+  do
+  {
+    r = intn % base;
+    intn = Math.floor(intn / base);
+    ten = darray.charAt(r) + ten;
+
+    //alert("1:intn="+intn+" ten="+ten);
+  } while(intn>0);
+
+  //alert("ten=" + ten);
+  
+  if(mann>0)
+  {
+    ten = ten + ".";
+    i = 0;
+    do
+    {
+      mult = mann * base;
+      r = Math.floor(mult);
+      mann = mult - r;
+      ten = ten + darray.charAt(r);
+    
+      //alert("2:mult="+mult+" ten="+ten);
+    } while(mann>0 && ten.length<15);
+  }
+  
+  return ten;
+}
+
+function digit(c,base)
+{
+  num = parseInt(c,base);
+  return num;
+}
+</script>
+</body>
+</html>
